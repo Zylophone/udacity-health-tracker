@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Health Tracker</title>
+        <!-- build:css -->
+        <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+        <link href="css/app.css" rel="stylesheet" type="text/css">
+        <!-- endbuild -->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/x-icon" href="favicon.ico">
+    </head>
+    <body>
+        <header class="container">
+            <h1 class="text-left text-muted head">Health Tracker [calories counter]</h1>
+        </header>
+        <div class="container cont">
+            <div class="row">
+                <div class="col-sm-4">
+                    <h3 class="text-left text-muted head">Search for food products</h3>
+                    <form>
+                        <div class="form-group">
+                            <label for="food">Product</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="food" placeholder="search for food...">
+                                <span class="input-group-btn">
+                                    <button type="submit" class="btn btn-default">Search</button>
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+                <div class="col-sm-4">
+                    <h3 class="text-left text-muted head">You ate today:</h3>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Food</th>
+                                <th>Calories</th>
+                            </tr>
+                        </thead>
+                        <tbody class="food_list">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+        </div>
+
+
+        <!-- build:js -->
+        <script src="js/jquery-2.1.4.min.js" type="text/javascript"></script>
+        <script src="js/underscore-min.js" type="text/javascript"></script>
+        <script src="js/backbone-min.js" type="text/javascript"></script>
+        <script src="js/app.js" type="text/javascript"></script>
+        <!-- endbuild -->
+    </body>
+</html>

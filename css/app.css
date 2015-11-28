@@ -1,10 +1,44 @@
-/*
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
-*/
-/* 
-    Created on : Nov 26, 2015, 9:48:58 PM
-    Author     : progr
-*/
+@import url(https://fonts.googleapis.com/css?family=Lato:700);
 
+body {
+    height: calc(100vh);
+    background-image: url('../img/80510015.jpg');
+    background-size: 100% 100%;
+    background-position: top;
+    background-repeat: no-repeat;
+}
+
+
+.head {
+    font-family: 'Lato', sans-serif;
+    margin-bottom: 50px;
+}
+
+@media only screen and (max-width: 992px) {
+    .head {
+        font-size: 3vw;
+    }
+}
+
+@media only screen and (max-width: 767px) {
+    .cont {
+        padding-right: 40%
+    }
+}
+
+@media only screen and (max-width: 700px) {
+
+    .head {
+        font-size: 4vw;
+    }
+
+}
+
+@media only screen and (max-width: 420px) {
+    .cont {
+        padding-right: 30%
+    }
+    .head {
+        font-size: 5vw;
+    }
+}
