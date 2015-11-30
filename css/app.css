@@ -8,10 +8,16 @@ body {
     background-repeat: no-repeat;
 }
 
+header {
+    margin-bottom: 50px;
+}
+
+.load {
+    max-width: 100px;
+}
 
 .head {
     font-family: 'Lato', sans-serif;
-    margin-bottom: 50px;
 }
 
 tbody {
@@ -40,10 +46,16 @@ tbody {
 }
 
 @media only screen and (max-width: 420px) {
+    header {
+        margin-bottom: 30px;
+    }
     .cont {
         padding-right: 30%
     }
     .head {
         font-size: 5vw;
+    }
+    thead {
+        background: #F1EDEC;
     }
 }

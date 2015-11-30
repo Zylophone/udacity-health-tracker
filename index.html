@@ -24,7 +24,7 @@
                             <label for="food">Product</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" id="food" 
-                                       placeholder="search for food...">
+                                       placeholder="search for food..." autocomplete="off">
                                 <span class="input-group-btn">
                                     <button class="btn btn-default"
                                             id="searchBtn">Search</button>
@@ -32,7 +32,11 @@
                             </div>
                         </div>
                     </form>
-                    <table class="table table-hover">
+                    <div id="error"></div>
+                    <div id="loader" style="display: none">
+                        <img src="img/load.gif" alt="load Icona" class="img-responsive center-block load"> 
+                    </div>
+                    <table class="table table-hover" id="searchResult">
                         <thead>
                             <tr>
                                 <th>Food</th>
@@ -41,13 +45,13 @@
                                 <th>Calories</th>
                             </tr>
                         </thead>
-                        <tbody id="searchResult">
+                        <tbody>
 
                         </tbody>
                     </table>
                 </div>
                 <div class="col-sm-4">
-                    <h3 class="text-left text-muted head">You ate today:</h3>
+                    <h3 class="text-left text-muted head">Today's Products:</h3>
                     <table class="table table-hover">
                         <thead>
                             <tr>

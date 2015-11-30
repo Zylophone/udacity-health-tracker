@@ -4,7 +4,7 @@
 
 var app = {};
 
-$(".btn").click(function(event) {
+$(".btn").click(function (event) {
     event.preventDefault();
 });
 
@@ -38,7 +38,9 @@ nf_serving_size_qty,nf_serving_size_unit',
     },
     parse: function (searchReturn) {
         if (!searchReturn.hits.length) {
-            console.log('didn\'t work!');
+            this.trigger('error', this, {
+                'statusText': 'Sorry, no results...'
+            });
         } else {
             var searchCollection = _.map(searchReturn.hits, function (item) {
                 return {
@@ -51,7 +53,7 @@ nf_serving_size_qty,nf_serving_size_unit',
                 };
             });
             this.reset(searchCollection);
-            console.log(JSON.stringify(this));
+            console.log('worked!');
         }
     }
 });
@@ -59,7 +61,7 @@ nf_serving_size_qty,nf_serving_size_unit',
 
 
 app.SearchViewItem = Backbone.View.extend({
-    tagName : 'tr',
+    tagName: 'tr',
     template: _.template($('#search_result_template').html()),
     initialize: function () {
         this.render();
@@ -74,26 +76,57 @@ app.SearchViewItem = Backbone.View.extend({
 
 app.SearchViewList = Backbone.View.extend({
     el: $('#searchArea'),
+    templateError: _.template('<h4 class="text-muted head"><%= name %></h4>'),
     events: {
-        'click #searchBtn' : 'search'
+        'click #searchBtn': 'search'
     },
     initialize: function () {
-        this.collection =  new app.SearchFoodCollection();
+        this.results = $('tbody', '#searchResult');
+        this.table = $('#searchResult');
+        this.error = $('#error');
+        this.table.hide();
+        this.tableObject = document.createDocumentFragment();
+        this.collection = new app.SearchFoodCollection();
         this.listenTo(this.collection, 'reset', this.render);
+        this.listenTo(this.collection, 'error', function (collection, error) {
+            this.renderError(error.statusText);
+        });
     },
     render: function () {
         var self = this;
-        self.$('#searchResult').html('');
-        this.collection.each(function (foodItem) {
-            var foodView = new app.SearchViewItem({
+
+
+        self.collection.each(function (foodItem) {
+            var item = new app.SearchViewItem({
                 model: foodItem
             });
-            self.$('#searchResult').append(foodView.render().el);
-        }, this);
+            self.tableObject.appendChild(item.render().el);
+
+        });
+        self.$('#loader').slideUp(400, function () {
+            self.table.fadeIn(400, function () {
+                self.results.append(self.tableObject).hide().fadeIn(600);
+            });
+
+        });
     },
-    search: function() {
-        console.log('shit works');
+    renderError: function (statusText) {
+        var self = this;
+        console.log('error');
+        self.$('#loader').slideUp(400, function () {
+            self.error.append(self.templateError({name: statusText}));
+        });
+    },
+    cleanup: function () {
+        this.results.empty();
+        this.error.empty();
+        this.table.hide();
+        this.$('#loader').fadeIn();
+        $('#food').val('').focus();
+    },
+    search: function () {
         var val = $('#food').val().trim();
+        this.cleanup();
         this.collection.query = val;
         this.collection.fetch();
     }
