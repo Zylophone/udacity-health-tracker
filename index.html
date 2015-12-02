@@ -50,9 +50,9 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="col-sm-4">
+                <div class="col-sm-4"  id="foodArea">
                     <h3 class="text-left text-muted head">Today's Products:</h3>
-                    <table class="table table-hover">
+                    <table class="table table-hover" id="food_list">
                         <thead>
                             <tr>
                                 <th>Food</th>
@@ -61,7 +61,7 @@
                                 <th>Calories</th>
                             </tr>
                         </thead>
-                        <tbody class="food_list">
+                        <tbody>
 
                         </tbody>
                     </table>
@@ -73,7 +73,8 @@
         <script type="text/template" id="food_list_template">
             <td><span class="name"><%= name %></span></td>
             <td><span class="qty"><%= qty %> x <%= unit %></span></td>
-            <td><span class="calories"><%= calories %></span></td>
+            <td><span class="qty"><%= weight %>g</span></td>
+            <td><span class="calories"><%= calories %>kcal</span></td>
         </script>
         <script type="text/template" id="search_result_template">
             <td><span class="name"><%= name %></span></td>

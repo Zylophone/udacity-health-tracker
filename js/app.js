@@ -8,7 +8,9 @@ $(".btn").click(function (event) {
     event.preventDefault();
 });
 
-app.SearchFoodItem = Backbone.Model.extend({
+/* MODEL AND COLLECTIONS */
+
+app.FoodItem = Backbone.Model.extend({
     defaults: {
         id: '',
         name: '',
@@ -19,8 +21,25 @@ app.SearchFoodItem = Backbone.Model.extend({
     }
 });
 
+app.FoodItemDisplay = Backbone.Model.extend({
+    defaults: {
+        id: '',
+        name: '',
+        weight: '',
+        calories: '',
+        qty: '1',
+        unit: ''
+    }
+});
+
+app.FoodCollection = Backbone.Collection.extend({
+    model: app.FoodItemDisplay
+});
+
+
+
 app.SearchFoodCollection = Backbone.Collection.extend({
-    model: app.SearchFoodItem,
+    model: app.FoodItem,
     query: '',
     nutritionix: {
         fields: 'item_name,nf_calories,nf_serving_weight_grams,\n\
@@ -58,11 +77,11 @@ nf_serving_size_qty,nf_serving_size_unit',
     }
 });
 
+/******************** VIEWS ********************************/
 
-
-app.SearchViewItem = Backbone.View.extend({
+app.FoodItemView = Backbone.View.extend({
     tagName: 'tr',
-    template: _.template($('#search_result_template').html()),
+    template: _.template($('#food_list_template').html()),
     initialize: function () {
         this.render();
         this.model.on('change', this.render, this);
@@ -72,6 +91,52 @@ app.SearchViewItem = Backbone.View.extend({
         this.$el.html(this.template(foodItem));
         return this;
     }
+});
+
+
+app.FoodListView = Backbone.View.extend({
+    el: $('#foodArea'),
+    initialize: function () {
+        this.collection = new app.FoodCollection();
+        this.tableObject = document.createDocumentFragment();
+        this.results = $('tbody', '#food_list');
+        this.listenTo(this.collection, 'add', this.render);
+        this.listenTo(this.collection, 'change', this.render);
+    },
+    render: function () {
+        var self = this;
+        self.collection.each(function (foodItem) {
+            var item = new app.FoodItemView({
+                model: foodItem
+            });
+            self.tableObject.appendChild(item.render().el);
+        });
+        self.results.append(self.tableObject).hide().fadeIn(600);
+    }
+});
+
+
+app.SearchViewItem = Backbone.View.extend({
+    tagName: 'tr',
+    template: _.template($('#search_result_template').html()),
+    events: {
+        'click': 'addItem'
+    },
+    initialize: function () {
+        this.render();
+        this.model.on('change', this.render, this);
+    },
+    render: function () {
+        var foodItem = this.model.toJSON();
+        this.$el.html(this.template(foodItem));
+        return this;
+    },
+    addItem: function (event) {
+    event.preventDefault();
+    var newModel = this.model.clone();
+    currentFood.collection.add(newModel);
+    }
+
 });
 
 app.SearchViewList = Backbone.View.extend({
@@ -132,4 +197,5 @@ app.SearchViewList = Backbone.View.extend({
     }
 });
 
-var current = new app.SearchViewList();
+var currentSearch = new app.SearchViewList();
+var currentFood =  new app.FoodListView();
