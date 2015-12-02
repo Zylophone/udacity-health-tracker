@@ -105,6 +105,7 @@ app.FoodListView = Backbone.View.extend({
     },
     render: function () {
         var self = this;
+        this.results.empty();
         self.collection.each(function (foodItem) {
             var item = new app.FoodItemView({
                 model: foodItem
