@@ -14,6 +14,9 @@ var gulp = require('gulp'),
 gulp.task("concatScripts", function () {
     return gulp.src([
         'js/jquery-2.1.4.min.js',
+        'js/moment.min.js',
+        'js/pikaday.js',
+        'js/pikaday.jquery.js',
         'js/underscore-min.js',
         'js/backbone-min.js',
         'js/app.js'
@@ -34,6 +37,8 @@ gulp.task("minifyScripts", ["concatScripts"], function () {
 gulp.task("concatCSS", function () {
     return gulp.src([
         'css/bootstrap.min.css',
+        'css/font-awesome.min.css',
+        'css/pikaday.css',
         'css/app.css'
     ])
             .pipe(maps.init())
