@@ -1,0 +1,75 @@
+
+@import url(https://fonts.googleapis.com/css?family=Cabin+Sketch:700);
+
+body {
+    height: calc(100vh);
+    background: url('../img/80510015.jpg') no-repeat center center fixed; 
+			-webkit-background-size: 100% 100%;
+			-moz-background-size: 100% 100%;
+			-o-background-size: 100% 100%;
+			background-size: 100% 100%;
+}
+
+header {
+    margin-bottom: 50px;
+}
+
+.head {
+        font-family: 'Cabin Sketch', cursive;
+}
+.load {
+    max-width: 100px;
+}
+
+
+tbody {
+    background: rgba(241,237,236,0.8);
+    cursor:pointer;
+}
+tfoot {
+    font-weight: bold; 
+}
+
+@media only screen and (min-width: 1100) {
+   .cont {
+        padding-right: 15%
+    }
+}
+
+
+
+@media only screen and (max-width: 992px) {
+    .head {
+        font-size: 3vw;
+    }
+        .cont {
+        padding-right: 25%
+    }
+}
+
+@media only screen and (max-width: 846px) {
+
+   .cont {
+        padding-right: 30%
+    }
+}
+
+@media only screen and (max-width: 700px) {
+
+    .head {
+        font-size: 4vw;
+    }
+
+}
+
+@media only screen and (max-width: 420px) {
+    header {
+        margin-bottom: 30px;
+    }
+    .head {
+        font-size: 5vw;
+    }
+    thead {
+        background: #F1EDEC;
+    }
+}

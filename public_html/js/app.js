@@ -4,31 +4,30 @@
 
 var app = {};
 
-$(".btn").click(function (event) {
-    event.preventDefault();
-});
+
 
 /* MODEL AND COLLECTIONS */
 
 app.FoodItem = Backbone.Model.extend({
     defaults: {
-        id: '',
+        //id: '',
         name: '',
         weight: '',
         calories: '',
-        qty: '1',
+        qty: 1,
         unit: ''
     }
 });
 
 app.FoodItemDisplay = Backbone.Model.extend({
     defaults: {
-        id: '',
+        //id: '',
         name: '',
         weight: '',
         calories: '',
-        qty: '1',
-        unit: ''
+        qty: 1,
+        unit: '',
+        edit: 'no'
     }
 });
 
@@ -62,13 +61,15 @@ nf_serving_size_qty,nf_serving_size_unit',
             });
         } else {
             var searchCollection = _.map(searchReturn.hits, function (item) {
+                var nameFood = item.fields.item_name.replace(/ *\([^)]*\) */g, "");
+                var unitFood = item.fields.nf_serving_size_unit.replace(/ *\([^)]*\) */g, "");
                 return {
-                    id: item._id,
-                    name: item.fields.item_name,
+                    //id: item._id,
+                    name: nameFood,
                     weight: item.fields.nf_serving_weight_grams,
                     calories: item.fields.nf_calories,
                     qty: item.fields.nf_serving_size_qty,
-                    unit: item.fields.nf_serving_size_unit
+                    unit: unitFood
                 };
             });
             this.reset(searchCollection);
@@ -82,15 +83,46 @@ nf_serving_size_qty,nf_serving_size_unit',
 app.FoodItemView = Backbone.View.extend({
     tagName: 'tr',
     template: _.template($('#food_list_template').html()),
-    initialize: function () {
-        this.render();
-        this.model.on('change', this.render, this);
+    templateEdit: _.template($('#food_list_template_update').html()),
+    events: {
+        'click .remove': 'remove',
+        'click .edit': 'edit',
+        'click .update': 'update',
+        'keyup .inputqty' : "enter"
     },
     render: function () {
         var foodItem = this.model.toJSON();
-        this.$el.html(this.template(foodItem));
+        var temp;
+        if (this.model.get('edit') === "yes") {
+            temp = this.templateEdit;
+        } else {
+            temp = this.template;
+        }
+        this.$el.html(temp(foodItem));
         return this;
-    }
+    },
+    remove: function () {
+        this.model.destroy();
+    },
+    edit: function () {
+        this.model.set('edit', 'yes');
+    },
+    update: function () {
+        var qty = this.$('.inputqty').val();
+        var weight = this.model.get('weight') * qty;
+        var calories = this.model.get('calories') * qty;
+        this.model.set({
+            weight: weight,
+            calories: calories,
+            qty: qty,
+            edit: 'no'
+        });
+
+    },
+    enter: function(event){
+    if(event.keyCode == 13){
+        this.update();
+    }}
 });
 
 
@@ -102,10 +134,16 @@ app.FoodListView = Backbone.View.extend({
         this.results = $('tbody', '#food_list');
         this.listenTo(this.collection, 'add', this.render);
         this.listenTo(this.collection, 'change', this.render);
+        this.listenTo(this.collection, 'remove', this.render);
     },
     render: function () {
         var self = this;
         this.results.empty();
+        var  totalKcal = 0;
+        self.collection.each(function (foodItem) {
+             totalKcal = totalKcal + foodItem.get('calories')  
+        });
+        $('#totalKcal').text(totalKcal + 'kcal');
         self.collection.each(function (foodItem) {
             var item = new app.FoodItemView({
                 model: foodItem
@@ -113,6 +151,8 @@ app.FoodListView = Backbone.View.extend({
             self.tableObject.appendChild(item.render().el);
         });
         self.results.append(self.tableObject).hide().fadeIn(600);
+
+        
     }
 });
 
@@ -123,20 +163,18 @@ app.SearchViewItem = Backbone.View.extend({
     events: {
         'click': 'addItem'
     },
-    initialize: function () {
-        this.render();
-        this.model.on('change', this.render, this);
-    },
     render: function () {
         var foodItem = this.model.toJSON();
         this.$el.html(this.template(foodItem));
         return this;
     },
     addItem: function (event) {
-    event.preventDefault();
-    var newModel = this.model.clone();
-    currentFood.collection.add(newModel);
+        event.preventDefault();
+        var newModel = this.model.clone();
+        app.currentFood.collection.add(newModel);
+        app.currentSearch.cleanupAdd()
     }
+    
 
 });
 
@@ -180,7 +218,7 @@ app.SearchViewList = Backbone.View.extend({
         var self = this;
         console.log('error');
         self.$('#loader').slideUp(400, function () {
-            self.error.append(self.templateError({name: statusText}));
+            self.error.append(self.templateError({ name: statusText }));
         });
     },
     cleanup: function () {
@@ -190,6 +228,10 @@ app.SearchViewList = Backbone.View.extend({
         this.$('#loader').fadeIn();
         $('#food').val('').focus();
     },
+    cleanupAdd: function() {
+       this.results.empty();
+       this.table.hide();
+    },
     search: function () {
         var val = $('#food').val().trim();
         this.cleanup();
@@ -198,5 +240,22 @@ app.SearchViewList = Backbone.View.extend({
     }
 });
 
-var currentSearch = new app.SearchViewList();
-var currentFood =  new app.FoodListView();
+ 
+
+$(function () {
+    app.picker = new Pikaday({ 
+        field: $('#datepicker')[0],
+        format: 'YYYY MMM DD',
+        minDate: moment('2015-11-01', 'YYYY-MM-DD').toDate(),
+        maxDate: moment('2018-01-01', 'YYYY-MM-DD').toDate()
+     });
+    app.picker.gotoToday()
+    $('#datepicker').val(moment().format('YYYY MMM DD'))
+    $(".btn").click(function (event) {
+        event.preventDefault();
+    });
+    app.currentSearch = new app.SearchViewList();
+    app.currentFood = new app.FoodListView();
+
+    
+});
