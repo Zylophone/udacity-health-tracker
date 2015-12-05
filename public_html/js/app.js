@@ -1,8 +1,24 @@
-/* global Backbone, resp */
+/* global Backbone, resp, moment */
 
 'use strict';
 
-var app = {};
+var app = {
+    picker : new Pikaday({ 
+        field: $('#datepicker')[0],
+        format: 'YYYY-MMM-DD',
+        minDate: moment('2015-11-01', 'YYYY-MM-DD').toDate(),
+        maxDate: moment('2018-01-01', 'YYYY-MM-DD').toDate(),
+        onSelect: function() {
+            app.currentDay =  moment(app.picker.toString()).format('YYYYMMDD');
+            console.log(app.currentDay);
+            app.currentFood.initialize();
+        }
+        
+    }),
+    currentDay: ''
+    
+    
+};
 
 
 
@@ -10,7 +26,7 @@ var app = {};
 
 app.FoodItem = Backbone.Model.extend({
     defaults: {
-        //id: '',
+        id: '',
         name: '',
         weight: '',
         calories: '',
@@ -21,7 +37,7 @@ app.FoodItem = Backbone.Model.extend({
 
 app.FoodItemDisplay = Backbone.Model.extend({
     defaults: {
-        //id: '',
+        id: '',
         name: '',
         weight: '',
         calories: '',
@@ -31,8 +47,13 @@ app.FoodItemDisplay = Backbone.Model.extend({
     }
 });
 
-app.FoodCollection = Backbone.Collection.extend({
-    model: app.FoodItemDisplay
+app.FoodCollection = Backbone.Firebase.Collection.extend({
+    model: app.FoodItemDisplay,
+    url: function() {
+    var root = 'https://thefullresolution-ht.firebaseio.com/';
+    var id = app.currentDay;
+    return root + id;
+  }
 });
 
 
@@ -64,7 +85,7 @@ nf_serving_size_qty,nf_serving_size_unit',
                 var nameFood = item.fields.item_name.replace(/ *\([^)]*\) */g, "");
                 var unitFood = item.fields.nf_serving_size_unit.replace(/ *\([^)]*\) */g, "");
                 return {
-                    //id: item._id,
+                    id: item._id,
                     name: nameFood,
                     weight: item.fields.nf_serving_weight_grams,
                     calories: item.fields.nf_calories,
@@ -120,7 +141,7 @@ app.FoodItemView = Backbone.View.extend({
 
     },
     enter: function(event){
-    if(event.keyCode == 13){
+    if(event.keyCode === 13){
         this.update();
     }}
 });
@@ -135,15 +156,16 @@ app.FoodListView = Backbone.View.extend({
         this.listenTo(this.collection, 'add', this.render);
         this.listenTo(this.collection, 'change', this.render);
         this.listenTo(this.collection, 'remove', this.render);
+        this.listenTo(this.collection, 'sync', this.render);
     },
     render: function () {
         var self = this;
         this.results.empty();
         var  totalKcal = 0;
         self.collection.each(function (foodItem) {
-             totalKcal = totalKcal + foodItem.get('calories')  
+             totalKcal = totalKcal + foodItem.get('calories');
         });
-        $('#totalKcal').text(totalKcal + 'kcal');
+        $('#totalKcal').text((Math.round(totalKcal * 100) / 100) + 'kcal');
         self.collection.each(function (foodItem) {
             var item = new app.FoodItemView({
                 model: foodItem
@@ -172,7 +194,7 @@ app.SearchViewItem = Backbone.View.extend({
         event.preventDefault();
         var newModel = this.model.clone();
         app.currentFood.collection.add(newModel);
-        app.currentSearch.cleanupAdd()
+        app.currentSearch.cleanupAdd();
     }
     
 
@@ -243,19 +265,16 @@ app.SearchViewList = Backbone.View.extend({
  
 
 $(function () {
-    app.picker = new Pikaday({ 
-        field: $('#datepicker')[0],
-        format: 'YYYY MMM DD',
-        minDate: moment('2015-11-01', 'YYYY-MM-DD').toDate(),
-        maxDate: moment('2018-01-01', 'YYYY-MM-DD').toDate()
-     });
-    app.picker.gotoToday()
-    $('#datepicker').val(moment().format('YYYY MMM DD'))
+
+    app.picker.gotoToday();
+    $('#datepicker').val(moment().format('YYYY-MMM-DD'));
+    app.currentDay = moment().format('YYYYMMDD');
+    
     $(".btn").click(function (event) {
         event.preventDefault();
     });
+
     app.currentSearch = new app.SearchViewList();
     app.currentFood = new app.FoodListView();
-
     
 });
