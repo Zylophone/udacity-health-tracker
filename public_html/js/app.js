@@ -1,41 +1,42 @@
-/* global Backbone, resp, moment */
+/* global Backbone, resp, moment, _ */
 
 'use strict';
 
 var app = {
-    picker : new Pikaday({ 
+    picker: new Pikaday({
         field: $('#datepicker')[0],
         format: 'YYYY-MMM-DD',
-        minDate: moment('2015-11-01', 'YYYY-MM-DD').toDate(),
-        maxDate: moment('2018-01-01', 'YYYY-MM-DD').toDate(),
-        onSelect: function() {
-            app.currentDay =  moment(app.picker.toString()).format('YYYYMMDD');
+        minDate: moment('2015-12-01', 'YYYY-MM-DD').toDate(),
+        maxDate: new Date(),
+        onSelect: function () {
+            app.currentDay = moment(app.picker.toString()).format('YYYYMMDD');
             console.log(app.currentDay);
             app.currentFood.initialize();
         }
-        
     }),
-    currentDay: ''
-    
-    
+    currentDay: moment().format('YYYYMMDD')
 };
 
 
 
 /* MODEL AND COLLECTIONS */
 
-app.FoodItem = Backbone.Model.extend({
+app.LoginItem = Backbone.Model.extend({
     defaults: {
-        id: '',
-        name: '',
-        weight: '',
-        calories: '',
-        qty: 1,
-        unit: ''
+        user: '',
+        passw: '',
+        logged: 'no'
     }
 });
 
-app.FoodItemDisplay = Backbone.Model.extend({
+app.AutoCompeletItem = Backbone.Model.extend({
+    defaults: {
+        id: '',
+        text: ''
+    }
+});
+
+app.FoodItem = Backbone.Model.extend({
     defaults: {
         id: '',
         name: '',
@@ -47,13 +48,46 @@ app.FoodItemDisplay = Backbone.Model.extend({
     }
 });
 
+app.AutoCompeletCollection = Backbone.Collection.extend({
+    model: app.AutoCompeletItem,
+    query: '',
+    nutritionix: {
+        appId: 'f133e02a',
+        appKey: 'be061c14a88c6a28fedae1b0fe7a71d3'
+    },
+    url: function () {
+        return 'https://api.nutritionix.com/v2/autocomplete?q=' + this.query;
+    },
+    sync: function (method, model, options) {
+        options.type = 'GET';
+        options.url = this.url();
+        options.data = $.param(this.nutritionix);
+        Backbone.sync.call(this, method, model, options);
+    },
+    parse: function (searchReturn) {
+        if (!searchReturn.length) {
+            this.trigger('error', this);
+        } else {
+        var searchCollection = _.map(searchReturn, function (item) {            
+            return {
+                id: item.id,
+                text:  item.text
+            };
+        });
+        this.reset(searchCollection);
+    }
+}
+});
+
+
+
 app.FoodCollection = Backbone.Firebase.Collection.extend({
-    model: app.FoodItemDisplay,
-    url: function() {
-    var root = 'https://thefullresolution-ht.firebaseio.com/';
-    var id = app.currentDay;
-    return root + id;
-  }
+    model: app.FoodItem,
+    url: function () {
+        var root = 'https://thefullresolution-ht.firebaseio.com/';
+        var id = app.currentDay;
+        return root + id;
+    }
 });
 
 
@@ -94,12 +128,101 @@ nf_serving_size_qty,nf_serving_size_unit',
                 };
             });
             this.reset(searchCollection);
-            console.log('worked!');
         }
     }
 });
 
 /******************** VIEWS ********************************/
+
+
+app.LoginView = Backbone.View.extend({
+    el: $('#login'),
+    template: _.template($('#login_update').html()),
+    templateLogged: _.template('<p class="head"><%= user %>\n\
+<button class="btn" id="signOut"><i class="fa fa-sign-out"></i></i></button></p>'),
+    events: {
+        'click a': 'login',
+        'click #signIn': 'logged',
+        'click #signOut': 'signOut'
+    },
+    initialize: function () {
+        this.model = new app.LoginItem();
+        this.model.on('change', this.render, this);
+    },
+    render: function () {
+        var self = this;
+        var login = this.model.toJSON();
+        this.$el.empty();
+        if (self.model.get('logged') === "yes") {
+            self.$el.html(self.templateLogged(login));
+        } else {
+            self.$el.html(self.template());
+        }
+    },
+    login: function () {
+        this.render();
+    },
+    logged: function () {
+        this.model.set({
+            user: $('#inputEmail').val(),
+            passw: $('#inputPassword').val(),
+            logged: 'yes'
+        });
+    }
+});
+
+
+app.AutoCompeletItemView = Backbone.View.extend({
+    template: _.template('<option value="<%= text %>">'),
+    events: {
+      'click this' : 'search'
+    },
+    render: function () {
+        var foodItem = this.model.toJSON();
+        this.$el.html(this.template(foodItem));
+        return this;
+    },
+    search: function () {
+        app.currentSearch.search();
+    }
+});
+
+app.AutoCompeletListView = Backbone.View.extend({
+    el: $('#searchArea'),
+    events : {
+        'keyup': 'auto'
+    },
+    initialize: function () {
+        this.collection = new app.AutoCompeletCollection();
+        this.listenTo(this.collection, 'reset', this.render);
+        this.listenTo(this.collection, 'error', function (collection) {
+            this.renderError();
+        });
+    },    
+    render: function () {
+        var self = this;
+        self.$('ul').empty();
+        self.collection.each(function (foodItem) {
+            var item = new app.AutoCompeletItemView({
+                model: foodItem
+            });
+           self.$('#autoComplete').append(item.render().el);
+        });
+    },
+    renderError: function() {
+        this.$('#autoComplete').empty();
+    },
+    auto: function () {
+        var val = $('#food').val().trim();
+        if(val.length > 0) {
+        this.collection.query = val;
+        this.collection.fetch();
+        } else {
+            this.renderError();
+        }
+    }
+});
+
 
 app.FoodItemView = Backbone.View.extend({
     tagName: 'tr',
@@ -109,7 +232,10 @@ app.FoodItemView = Backbone.View.extend({
         'click .remove': 'remove',
         'click .edit': 'edit',
         'click .update': 'update',
-        'keyup .inputqty' : "enter"
+        'keyup .inputqty': "enter"
+    },
+    initialize: function () {
+        this.model.on('change', this.render, this);
     },
     render: function () {
         var foodItem = this.model.toJSON();
@@ -138,14 +264,13 @@ app.FoodItemView = Backbone.View.extend({
             qty: qty,
             edit: 'no'
         });
-
     },
-    enter: function(event){
-    if(event.keyCode === 13){
-        this.update();
-    }}
+    enter: function (event) {
+        if (event.keyCode === 13) {
+            this.update();
+        }
+    }
 });
-
 
 app.FoodListView = Backbone.View.extend({
     el: $('#foodArea'),
@@ -154,16 +279,15 @@ app.FoodListView = Backbone.View.extend({
         this.tableObject = document.createDocumentFragment();
         this.results = $('tbody', '#food_list');
         this.listenTo(this.collection, 'add', this.render);
-        this.listenTo(this.collection, 'change', this.render);
         this.listenTo(this.collection, 'remove', this.render);
         this.listenTo(this.collection, 'sync', this.render);
     },
     render: function () {
         var self = this;
         this.results.empty();
-        var  totalKcal = 0;
+        var totalKcal = 0;
         self.collection.each(function (foodItem) {
-             totalKcal = totalKcal + foodItem.get('calories');
+            totalKcal = totalKcal + foodItem.get('calories');
         });
         $('#totalKcal').text((Math.round(totalKcal * 100) / 100) + 'kcal');
         self.collection.each(function (foodItem) {
@@ -174,10 +298,9 @@ app.FoodListView = Backbone.View.extend({
         });
         self.results.append(self.tableObject).hide().fadeIn(600);
 
-        
+
     }
 });
-
 
 app.SearchViewItem = Backbone.View.extend({
     tagName: 'tr',
@@ -196,7 +319,7 @@ app.SearchViewItem = Backbone.View.extend({
         app.currentFood.collection.add(newModel);
         app.currentSearch.cleanupAdd();
     }
-    
+
 
 });
 
@@ -204,7 +327,8 @@ app.SearchViewList = Backbone.View.extend({
     el: $('#searchArea'),
     templateError: _.template('<h4 class="text-muted head"><%= name %></h4>'),
     events: {
-        'click #searchBtn': 'search'
+        'click #searchBtn': 'search',
+        'click .clear': 'cleanupAdd'
     },
     initialize: function () {
         this.results = $('tbody', '#searchResult');
@@ -221,7 +345,6 @@ app.SearchViewList = Backbone.View.extend({
     render: function () {
         var self = this;
 
-
         self.collection.each(function (foodItem) {
             var item = new app.SearchViewItem({
                 model: foodItem
@@ -233,14 +356,13 @@ app.SearchViewList = Backbone.View.extend({
             self.table.fadeIn(400, function () {
                 self.results.append(self.tableObject).hide().fadeIn(600);
             });
-
         });
     },
     renderError: function (statusText) {
         var self = this;
         console.log('error');
         self.$('#loader').slideUp(400, function () {
-            self.error.append(self.templateError({ name: statusText }));
+            self.error.append(self.templateError({name: statusText}));
         });
     },
     cleanup: function () {
@@ -250,9 +372,9 @@ app.SearchViewList = Backbone.View.extend({
         this.$('#loader').fadeIn();
         $('#food').val('').focus();
     },
-    cleanupAdd: function() {
-       this.results.empty();
-       this.table.hide();
+    cleanupAdd: function () {
+        this.results.empty();
+        this.table.hide();
     },
     search: function () {
         var val = $('#food').val().trim();
@@ -262,19 +384,18 @@ app.SearchViewList = Backbone.View.extend({
     }
 });
 
- 
+
 
 $(function () {
 
     app.picker.gotoToday();
     $('#datepicker').val(moment().format('YYYY-MMM-DD'));
-    app.currentDay = moment().format('YYYYMMDD');
-    
+
     $(".btn").click(function (event) {
         event.preventDefault();
     });
-
+    app.autoView =  new app.AutoCompeletListView();
     app.currentSearch = new app.SearchViewList();
     app.currentFood = new app.FoodListView();
-    
+    app.login = new app.LoginView();
 });

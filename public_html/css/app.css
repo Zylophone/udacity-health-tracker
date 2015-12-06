@@ -1,55 +1,80 @@
 
 @import url(https://fonts.googleapis.com/css?family=Cabin+Sketch:700);
 
+* {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    -webkit-tap-highlight-color: transparent; /* For some Androids */
+}
+
 body {
     height: calc(100vh);
-    background: url('../img/80510015.jpg') no-repeat center center fixed; 
-			-webkit-background-size: 100% 100%;
-			-moz-background-size: 100% 100%;
-			-o-background-size: 100% 100%;
-			background-size: 100% 100%;
+    background: url('../img/80510015.jpg') no-repeat center center fixed;
+    -webkit-background-size: 100% 100%;
+    -moz-background-size: 100% 100%;
+    -o-background-size: 100% 100%;
+    background-size: 100% 100%;
 }
 
 header {
     margin-bottom: 50px;
 }
 
-.head {
-        font-family: 'Cabin Sketch', cursive;
+a,
+a:visited  {
+    color: #284687;
+    text-decoration: none;
 }
+
+.login {
+    font-size: 1.5em;
+    position: absolute;
+    right:10px;
+    top: 10px;
+}
+
+.head {
+    font-family: 'Cabin Sketch', cursive;
+}
+
 .load {
     max-width: 100px;
 }
 
+ul {
+    background: white;
+}
 
 tbody {
     background: rgba(241,237,236,0.8);
     cursor:pointer;
 }
+
+li {
+    padding-left: 20px;
+}
+
 tfoot {
-    font-weight: bold; 
+    font-weight: bold;
 }
 
 @media only screen and (min-width: 1100) {
-   .cont {
+    .cont {
         padding-right: 15%
     }
 }
-
-
 
 @media only screen and (max-width: 992px) {
     .head {
         font-size: 3vw;
     }
-        .cont {
+    .cont {
         padding-right: 25%
     }
 }
 
 @media only screen and (max-width: 846px) {
 
-   .cont {
+    .cont {
         padding-right: 30%
     }
 }
