@@ -17,13 +17,11 @@
     </head>
 
     <body>
-        <header class="container">
+        <header class="container transform">
             <h1 class="text-left text-muted head">Health Tracker [Calorie Counter]</h1>
-            <form class="form-inline">
-                <div class="col-xs-4">
-                    <label for="datepicker"><i class="fa fa-calendar"></i></label>
-                    <input type="text" class="form-control" id="datepicker">
-                </div>
+            <form class="date transform">
+                   <label for="datepicker" class="calendar"><i class="fa fa-calendar"></i></label>
+                   <input type="text" class="form-control" id="datepicker">
             </form>
             <div id="login" class="login">
                 <a href="#!"><p class="head">Login</p></a>
@@ -32,7 +30,7 @@
 
         <div class="container cont">
             <div class="row">
-                <div class="col-md-4" id="searchArea">
+                <div class="col-md-4 transform" id="searchArea">
                     <h3 class="text-left text-muted head">Search for food products.</h3>
                     <form method="get">
                         <div class="form-group">
@@ -51,7 +49,7 @@
                     </form>
 
                     <div id="error"></div>
-                    <div id="loader" style="display: none">
+                    <div class="transform" id="loader" style="display: none">
                         <img src="img/load.gif" alt="load Icona" 
                              class="img-responsive center-block load">
                     </div>
@@ -76,7 +74,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="col-md-4" id="foodArea">
+                <div class="col-md-4 second transform" id="foodArea">
                     <h3 class="text-left text-muted head">Today's Products:</h3>
                     <table class="table table-hover" id="food_list">
                         <thead>
