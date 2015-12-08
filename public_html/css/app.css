@@ -31,10 +31,16 @@ a:visited  {
 }
 
 .login {
-    font-size: 1.5em;
+    font-size: 1.3em;
     position: absolute;
     right:10px;
     top: 10px;
+}
+
+.loginForm {
+    position: absolute;
+    width: 100%;
+    background: rgba(241,237,236,0.8);
 }
 
 .head {
@@ -45,17 +51,9 @@ a:visited  {
     max-width: 100px;
 }
 
-ul {
-    background: white;
-}
-
 tbody {
     background: rgba(241,237,236,0.8);
     cursor:pointer;
-}
-
-li {
-    padding-left: 20px;
 }
 
 tfoot {
@@ -64,7 +62,7 @@ tfoot {
 
 .date {
     display: inline-flex;
-    width: 134px;
+    width: 210px;
     margin-left: 10px;
 }
 
@@ -79,7 +77,7 @@ tfoot {
     }
 }
 
-@media only screen and (max-width: 992px) {
+@media only screen and (max-width: 994px) {
     .head {
         font-size: 3vw;
     }
@@ -92,12 +90,21 @@ tfoot {
 }
 
 @media only screen and (max-width: 846px) {
+    .head {
+        font-size: 3.5vw;
+    }
     .cont {
         padding-right: 30%
     }
 }
 
-@media only screen and (max-width: 700px) {
+@media only screen and (max-width: 760px) {
+    .cont {
+        padding-right: 33%
+    }
+}
+
+@media only screen and (max-width: 655px) {
     .head {
         font-size: 4vw;
     }

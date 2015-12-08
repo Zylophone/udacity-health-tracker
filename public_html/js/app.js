@@ -4,7 +4,7 @@
 
 
 /* Whole documemnt is divided by sections where models, 
- collections and views are grouped togerther for easier review of the code.
+ collections and views are grouped together for easier review of the code.
  I on purpose ignored suggested structure of folders and files for Bacbone app - 
  I find this way easier to manage my code. */
 
@@ -14,9 +14,10 @@
  app object will store all the Health Tracker's objects, including Bacbone models, views etc.
  At first Pikaday object is being created for selection of dates. 
  [https://github.com/dbushell/Pikaday]
- Additinally I use Moment.js to format dates [http://momentjs.com/]. 
- Upon date selection, [onSelect:] picker intialize view for app.currentFood,
- which is linked to Firebase and will pull data from databse linked to this date.*/
+ Additionally I use Moment.js to format dates [http://momentjs.com/]. 
+ Upon date selection, [onSelect:] picker initialize view for app.currentFood,
+ which is linked to Firebase and will pull data from database linked to this date.*/
+
 
 var app = {
     picker: new Pikaday({
@@ -25,30 +26,41 @@ var app = {
         minDate: moment('2015-12-01', 'YYYY-MM-DD').toDate(),
         maxDate: new Date(),
         onSelect: function () {
-            app.currentDay = moment(app.picker.toString()).format('YYYYMMDD');
+            app.currentDay = moment(app.picker.toString(), 'YYYY-MMM-DD').format('YYYYMMDD');
             app.currentFood.initialize();
-            app.router.navigate(app.currentDay, {
+            var link = "date/" + app.currentDay;
+            app.router.navigate(link, {
                 trigger: true
             });
         }
     }),
-    currentDay: moment().format('YYYYMMDD')
+    currentDay: moment().format('YYYYMMDD'),
+    loadDay: moment().format('YYYY-MMM-DD'),
+    dateHandler: function () {
+        $('#left').click(function () {
+            var temp = moment(moment(app.picker.toString('YYYY-MM-DD'), 'YYYY-MM-DD').
+                    subtract(1, 'days')).format('YYYY-MMM-DD');
+            app.picker.setDate(temp);
+        });
+        $('#right').click(function () {
+            var temp = moment(moment(app.picker.toString('YYYY-MM-DD'), 'YYYY-MM-DD').
+                    add(1, 'days')).format('YYYY-MMM-DD');
+            app.picker.setDate(temp);
+        });
+    }
 };
 
 app.Router = Backbone.Router.extend({
     'routes': {
-        "index": 'index',
-        ":id": "show"
+        '': 'index',
+        'index.html': 'index',
+        'date/:id': 'show'
     },
-    index : function(){
-       $('#datepicker').val(moment().format('YYYY-MMM-DD'));
-       app.currentDay = moment().format('YYYYMMDD');
-       app.currentFood.initialize();
+    index: function () {
+        app.picker.setDate(app.loadDay);
     },
-    show: function(id) {
-       $('#datepicker').val(moment(id, 'YYYYMMDD').format('YYYY-MMM-DD'));
-       app.currentDay = id;
-       app.currentFood.initialize();
+    show: function (id) {
+        app.picker.setDate((moment(id, 'YYYYMMDD').format('YYYY-MMM-DD')));
     }
 });
 
@@ -56,73 +68,16 @@ app.Router = Backbone.Router.extend({
 
 
 $(function () {
-
-    app.picker.gotoToday();
-    $('#datepicker').val(moment().format('YYYY-MMM-DD'));
     $(".btn").click(function (event) {
         event.preventDefault();
     });
-
-
-    app.router = new app.Router();
-    Backbone.history.start({pushState: true});
-
     app.autoView = new app.AutoCompeletListView();
     app.currentSearch = new app.SearchViewList();
     app.currentFood = new app.FoodListView();
-    app.login = new app.LoginView();
+    app.router = new app.Router();
+    Backbone.history.start({pushState: true});  
+    app.dateHandler();
 });
-
-app.LoginItem = Backbone.Model.extend({
-    defaults: {
-        user: '',
-        passw: '',
-        logged: 'no'
-    }
-});
-
-app.LoginView = Backbone.View.extend({
-    el: $('#login'),
-    template: _.template($('#login_update').html()),
-    templateLogged: _.template('<p class="head"><%= user %>\n\
-<button class="btn" id="signOut"><i class="fa fa-sign-out"></i></i></button></p>'),
-    events: {
-        'click a': 'login',
-        'click #signIn': 'logged',
-        'click #signOut': 'signOut'
-    },
-    initialize: function () {
-        this.model = new app.LoginItem();
-        this.model.on('change', this.render, this);
-    },
-    render: function () {
-        var self = this;
-        var login = this.model.toJSON();
-        this.$el.empty();
-        if (self.model.get('logged') === "yes") {
-            self.$el.html(self.templateLogged(login));
-        } else {
-            self.$el.html(self.template());
-        }
-    },
-    login: function () {
-        this.render();
-    },
-    logged: function () {
-        this.model.set({
-            user: $('#inputEmail').val(),
-            passw: $('#inputPassword').val(),
-            logged: 'yes'
-        });
-    }
-});
-
-
-
-
-
-
-
 
 
 
@@ -136,14 +91,17 @@ app.LoginView = Backbone.View.extend({
 
 app.AutoCompeletItem = Backbone.Model.extend({
     defaults: {
-        id: '',
         text: ''
     }
 });
 
-/*AutoCompeletCollection is Bacbone Collection. 
- It overwrites default [sync] to match API's requerments, additionally [parse] function will trigger error
- if resopnse is empty or [reset] collection and creating models, using the response.*/
+/*AutoCompeletCollection - Bacbone Collection. 
+ Default [sync] is overwritten to get information from the server.
+ - appID and appKey is stored in object [nutritionix]
+ - url is returned in function together with user's query
+ [parse] function will process the response.
+ - if return is empty it will trigger error, which will be handled in app.AutoCompeletListView.
+ - else it will reset collection to create list of suggestions.*/
 
 app.AutoCompeletCollection = Backbone.Collection.extend({
     model: app.AutoCompeletItem,
@@ -167,7 +125,6 @@ app.AutoCompeletCollection = Backbone.Collection.extend({
         } else {
             var searchCollection = _.map(searchReturn, function (item) {
                 return {
-                    id: item.id,
                     text: item.text
                 };
             });
@@ -196,8 +153,7 @@ app.AutoCompeletItemView = Backbone.View.extend({
  - [initialize] creates collection, assign [this.list] to element in the DOM
  listens to reset and error, which is triggered in case of no response from server.
  - [renderError] empties DOM element in case of error. 
- - [reneder] appends all elements to datalist. 
- */
+ - [reneder] appends all elements to datalist. */
 
 app.AutoCompeletListView = Backbone.View.extend({
     el: $('#searchArea'),
@@ -236,12 +192,9 @@ app.AutoCompeletListView = Backbone.View.extend({
     }
 });
 
-/*****************FOOD ITEM********************
- Backbone model used by SEARCH RESULTS collection and 
- TRACKED FOOD collection*/
-
-
-
+/*****************FOOD ITEM********************/
+/*Backbone model used by SEARCH RESULTS collection and 
+ TRACKED FOOD ITEMS collection*/
 
 app.FoodItem = Backbone.Model.extend({
     defaults: {
@@ -255,14 +208,17 @@ app.FoodItem = Backbone.Model.extend({
     }
 });
 
-
-/*****************SEARCH RESULTS********************
- 
- 
- 
- 
- */
-
+/*****************SEARCH RESULTS********************/
+/*SearchFoodCollection - Bacbone Collection. 
+ Default [sync] is overwritten to get information from the server.
+ - fields (which limits amount of data we receive form server),
+ appID and appKey is stored in object [nutritionix]
+ - url is returned in function together with user's query
+ [parse] function will process the response.
+ - if return is empty it will trigger error, which will be handled in app.AutoCompeletListView.
+ It passes the text which will be displayed under input filed. 
+ - else it will reset collection to create list of models,
+ with all the information displayed in the app.*/
 
 app.SearchFoodCollection = Backbone.Collection.extend({
     model: app.FoodItem,
@@ -303,7 +259,11 @@ nf_serving_size_qty,nf_serving_size_unit',
         }
     }
 });
-/**/
+
+/* SearchViewItem  - Backbone View
+ View used for displaying each table row in the search results, 
+ additionally handling the event when user will click on of the rows
+ and adds the model to the app.FoodCollection [addItem].*/
 
 app.SearchViewItem = Backbone.View.extend({
     tagName: 'tr',
@@ -323,6 +283,23 @@ app.SearchViewItem = Backbone.View.extend({
         app.currentSearch.cleanupAdd();
     }
 });
+
+/*SearchViewList - Backbone View
+ - [el] is defined as #searchArea, where search input is stored and results table.
+ - [click #searchBtn] event triggers [search] function.
+ - [search] reads the value in the input and assign it to the collection so query can 
+ be passed in the server request and calls [.fetch();]. Additionally it calls [cleanup] function 
+ - [cleanup] functions empties all the objects in under search area, 
+ including possible error message from previous search. Additionally it displays loader.gif, 
+ in case the server response will take more time. 
+ - [click .clear] event is being triggered when user click 'x' button. Then
+ function [cleanupAdd], remove results (without adding load gif).
+ - [initialize] creates variables for different elements in the DOM,
+ hide table so no headers being displayed, creates the collection [new app.SearchFoodCollection();].
+ Also listens to reset (triggers [render]) and error (triggers [renderError]).
+ - [render] appends all the views to [tableObject] so jQuery animation can be called when all the views
+ being appended. Next it removes the loader.gif and displays the table.
+ - [renderError] removes loader.gif and displays the error message instead of table with results.*/
 
 app.SearchViewList = Backbone.View.extend({
     el: $('#searchArea'),
@@ -361,7 +338,6 @@ app.SearchViewList = Backbone.View.extend({
     },
     renderError: function (statusText) {
         var self = this;
-        console.log('error');
         self.$('#loader').slideUp(400, function () {
             self.error.append(self.templateError({name: statusText}));
         });
@@ -386,6 +362,11 @@ app.SearchViewList = Backbone.View.extend({
 });
 
 
+/*****************TRACKED FOOD ITEMS********************/
+
+/*FoodCollection - Backbone Firebase Collection
+ Collection used to easly sync data with Firebase database.
+ */
 
 app.FoodCollection = Backbone.Firebase.Collection.extend({
     model: app.FoodItem,
@@ -395,6 +376,23 @@ app.FoodCollection = Backbone.Firebase.Collection.extend({
         return root + id;
     }
 });
+
+
+/*FoodItemView - Backbone View
+ View for each table row displayed for 'added' food items.
+ View uses two templates, one for standard display and one for editing 
+ qty of tracked food items. 
+ - [click .remove] is triggered when user presses 'x' button, 
+ calls function [remove] which destroys the model.
+ - [click .edit] is triggered when user press 'pencil' button,
+ calls [edit] function which sets model's value of 'edit' to 'yes'. 
+ This will trigger model change and assign different template during rendering.
+ - [click .update] is triggered when user is done with editing qty, 
+ calls [update] function, which reads input with qty, gets model's weight and calories,
+ multiply them by input qty and sets new values for all three. And changes 'edit' value to 'no'.
+ - [keyup .inputqty] checks if user wanted to confirm change with enter key instead on screen button.
+ Then calls [update] function.
+ - [render] checks if 'edit' value is 'yes' and then uses the matching template.*/
 
 app.FoodItemView = Backbone.View.extend({
     tagName: 'tr',
@@ -445,11 +443,16 @@ app.FoodItemView = Backbone.View.extend({
     }
 });
 
+/*FoodListView - Backbone View
+ - [el] is defined as #foodArea, where table with tracked information being displayed.
+ - [render] appends all the views to [this.result] which is declared in [initialize],
+ - [calculateKcal] is being called during [render] to sum up daily calories intake.
+ */
+
 app.FoodListView = Backbone.View.extend({
     el: $('#foodArea'),
     initialize: function () {
         this.collection = new app.FoodCollection();
-        this.tableObject = document.createDocumentFragment();
         this.results = $('tbody', '#food_list');
         this.listenTo(this.collection, 'add', this.render);
         this.listenTo(this.collection, 'remove', this.render);
@@ -459,15 +462,14 @@ app.FoodListView = Backbone.View.extend({
         var self = this;
 
         this.calculateKcal();
-
+        this.results.empty();
         self.collection.each(function (foodItem) {
             var item = new app.FoodItemView({
                 model: foodItem
             });
-            self.tableObject.appendChild(item.render().el);
+            self.results.append(item.render().el);
         });
-        this.results.empty();
-        this.results.append(self.tableObject);
+
     },
     calculateKcal: function () {
         var self = this;
@@ -479,5 +481,3 @@ app.FoodListView = Backbone.View.extend({
         $('#totalKcal').text((Math.round(totalKcal * 100) / 100) + 'kcal');
     }
 });
-
-

@@ -22,6 +22,10 @@
             <form class="date transform">
                    <label for="datepicker" class="calendar"><i class="fa fa-calendar"></i></label>
                    <input type="text" class="form-control" id="datepicker">
+                   <a href="#!" class="btn" id="left" role="button">
+                       <i class="fa fa-chevron-left"></i></a>
+                 <a href="#!" class="btn" id="right" role="button">
+                     <i class="fa fa-chevron-right"></i></a>
             </form>
             <div id="login" class="login">
                 <a href="#!"><p class="head">Login</p></a>
@@ -74,7 +78,7 @@
                         </tbody>
                     </table>
                 </div>
-                <div class="col-md-4 second transform" id="foodArea">
+                <div class="col-md-5 second transform" id="foodArea">
                     <h3 class="text-left text-muted head">Today's Products:</h3>
                     <table class="table table-hover" id="food_list">
                         <thead>
@@ -101,6 +105,7 @@
 
         </div>
         <script type="text/template" id="login_update">
+        <div class="loginForm"> 
         <form class="form-inline">
           <div class="form-group">
             <label class="sr-only" for="inputEmail">Email address</label>
@@ -111,12 +116,13 @@
             <input type="password" class="form-control" id="inputPassword" placeholder="Password">
           </div>
           <button class="btn btn-default" id="signIn"><i class="fa fa-sign-in"></i></button>
-        </form>    
+        </form>
+        </div>    
         </script>
         <script type="text/template" id="food_list_template_update">
             <td><span class="name"><%= name %></span></td>
             <td colspan="2">
-            <input type="text" class="form-control inputqty" value="<%= qty %>">
+            <input type="number" class="form-control inputqty" value="<%= qty %>">
             </td>
             <td><span class="name">x <%= unit %></span></td>
             <td><a class="btn update" href="#!" role="button"><i class="fa fa-check"></i></a></td>
