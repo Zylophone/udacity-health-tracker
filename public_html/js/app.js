@@ -3,20 +3,30 @@
 'use strict';
 
 
-/* Whole documemnt is divided by sections where models, 
+/* Whole document is divided by sections where models, 
  collections and views are grouped together for easier review of the code.
  I on purpose ignored suggested structure of folders and files for Bacbone app - 
  I find this way easier to manage my code. */
 
 
 
-/****************APP OBJECT*********************
- app object will store all the Health Tracker's objects, including Bacbone models, views etc.
+
+/****************APP OBJECT*********************/
+/*app object will store all the Health Tracker's objects, including Bacbone models, views etc.
  At first Pikaday object is being created for selection of dates. 
  [https://github.com/dbushell/Pikaday]
- Additionally I use Moment.js to format dates [http://momentjs.com/]. 
- Upon date selection, [onSelect:] picker initialize view for app.currentFood,
- which is linked to Firebase and will pull data from database linked to this date.*/
+ Additionally Moment.js is being used to format dates [http://momentjs.com/]. 
+  - [app.picker] - creates Pikaday object. 
+ Sets min date to 01st of December and max date to the day when app is load.
+ [onSelect](when new date is selected) object will assign new date to [app.currentDay] and
+ initialize Bacbone Firebase collection [app.currentFood] which is linked to Firebase database,
+ and pulls information for selected date. Function also uses [app.router.navigate] to keep track
+ of selected dates, so later user can use back button.
+ - [app.dateHandler] stores jQuery events for managing buttons.
+ [#left] & [#right] are the buttons next to date filed, moment js subtracts or adds date. Then new date
+ is set [app.picker.setDate()] which also triggers [onSelect] function. [.btn] event is to 
+ prevent reloading of the page.
+*/
 
 
 var app = {
@@ -39,16 +49,73 @@ var app = {
     dateHandler: function () {
         $('#left').click(function () {
             var temp = moment(moment(app.picker.toString('YYYY-MM-DD'), 'YYYY-MM-DD').
-                    subtract(1, 'days')).format('YYYY-MMM-DD');
+                subtract(1, 'days')).format('YYYY-MMM-DD');
             app.picker.setDate(temp);
         });
         $('#right').click(function () {
             var temp = moment(moment(app.picker.toString('YYYY-MM-DD'), 'YYYY-MM-DD').
-                    add(1, 'days')).format('YYYY-MMM-DD');
+                add(1, 'days')).format('YYYY-MMM-DD');
             app.picker.setDate(temp);
+        });
+        $(".btn").click(function (event) {
+            event.preventDefault();
         });
     }
 };
+
+app.loginForm = function () {
+    var self = this;
+    this.loginDiv = $('#login')
+
+    this.templateNot = '<a href="#!" class="btn" id="loginButton"  role="button">' +
+    '<p class="head">Login</p></a>'
+    this.templateYes = '<i class="fa fa-user-md"></i>' +
+    '<a href="#!" class="btn" id="singOut"  role="button"><i class="fa fa-sign-out"></i></a>'
+
+    this.email = $('#inputEmail');
+    this.pass = $('#inputPassword');
+    this.logStatus = 'no';
+
+
+    this.render = function () {
+        if (self.logStatus === 'yes') {
+            self.loginDiv.html(self.templateYes)
+        } else {
+            self.loginDiv.html(self.templateNot)
+        }
+    }
+    this.signIn = function (login, password) {
+        self.email.val('');
+        self.pass.val('');
+        console.log(login, password)
+        self.logStatus = 'yes';
+        self.render();
+
+    }
+    this.signOut = function () {
+        console.log('BYE!')
+        self.logStatus = 'no';
+        self.render();
+    }
+    this.buttonHandler = (function () {
+        self.render();
+        self.loginDiv.on('click', '#loginButton', function () {
+            $("#loginForm").slideDown("slow")
+        });
+        self.loginDiv.on('click', '#singOut', function () {
+            self.signOut();
+        });
+        $("#signIn").click(function () {
+            self.signIn(self.email.val(), self.pass.val());
+            $("#loginForm").slideUp("fast")
+        });
+
+    })();
+}
+
+/****************ROUTER Backbone*********************/
+/*Simple router which keep tracks of selected dates.
+Once user go back (or forward) it set date of picker to date from url*/
 
 app.Router = Backbone.Router.extend({
     'routes': {
@@ -65,18 +132,17 @@ app.Router = Backbone.Router.extend({
 });
 
 
-
+/****************Documnet Ready*********************/
+/* Once document is ready, create all the objects and start router*/
 
 $(function () {
-    $(".btn").click(function (event) {
-        event.preventDefault();
-    });
     app.autoView = new app.AutoCompeletListView();
     app.currentSearch = new app.SearchViewList();
     app.currentFood = new app.FoodListView();
     app.router = new app.Router();
-    Backbone.history.start({pushState: true});  
+    Backbone.history.start({ pushState: true });
     app.dateHandler();
+    app.loginForm();
 });
 
 
@@ -339,7 +405,7 @@ app.SearchViewList = Backbone.View.extend({
     renderError: function (statusText) {
         var self = this;
         self.$('#loader').slideUp(400, function () {
-            self.error.append(self.templateError({name: statusText}));
+            self.error.append(self.templateError({ name: statusText }));
         });
     },
     cleanup: function () {

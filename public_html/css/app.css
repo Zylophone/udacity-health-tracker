@@ -13,10 +13,11 @@ body {
     -moz-background-size: 100% 100%;
     -o-background-size: 100% 100%;
     background-size: 100% 100%;
+     z-index: 1;
 }
 
 header {
-    margin-bottom: 50px;
+    margin-bottom: 50px;  
 }
 
 .transform {
@@ -39,8 +40,17 @@ a:visited  {
 
 .loginForm {
     position: absolute;
+    top: 0;
     width: 100%;
-    background: rgba(241,237,236,0.8);
+    background: rgba(241,237,236,0.95);
+    z-index: 2;
+}
+
+.loginForm form{
+    padding-top: 20px;
+    padding-bottom: 20px; 
+    margin-left: 10%;
+    margin-right: 10%;
 }
 
 .head {
