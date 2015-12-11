@@ -19,6 +19,8 @@ gulp.task("concatScripts", function () {
         'js/pikaday.jquery.js',
         'js/underscore-min.js',
         'js/backbone-min.js',
+        'js/firebase.js',
+        'js/backbonefire.min.js',
         'js/app.js'
     ])
             .pipe(maps.init())

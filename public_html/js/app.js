@@ -70,7 +70,7 @@ app.loginForm = function () {
     this.loginDiv = $('#login');
 
     this.templateNot = '<a href="#!" class="btn" id="loginButton"  role="button">' +
-            '<p class="head">Login</p></a>';
+            '<p class="head" style="font-size: 1.3em">Login</p></a>';
     this.templateLoading = '<i class="fa fa-spinner fa-pulse fa-2x"></i>';
     this.templateYes = '<i class="fa fa-user-md"></i>' +
             '<a href="#!" class="btn" id="singOut"  role="button"><i class="fa fa-sign-out"></i></a>';
@@ -94,7 +94,19 @@ app.loginForm = function () {
             password: password
         }, function (error, authData) {
             if (error) {
-                console.log("Login Failed!", error);
+                switch (error.code) {
+                    case "INVALID_EMAIL":
+                        self.error("The specified user account email is invalid.");
+                        break;
+                    case "INVALID_PASSWORD":
+                        self.error("The specified user account password is incorrect.");
+                        break;
+                    case "INVALID_USER":
+                        self.error("The specified user account does not exist.");
+                        break;
+                    default:
+                        self.error("Error logging user in:", error);
+                }
             } else {
                 self.logStatus = 'yes';
                 self.render();
@@ -113,6 +125,14 @@ app.loginForm = function () {
         app.currentFood.initialize();
         app.userId = '';
         self.render();
+    };
+    this.error = function (msg) {
+        $("#errorMsg").text(msg);
+        $("#errorForm").slideDown("fast", function () {
+            self.logStatus = 'no';
+            self.render();
+        });
+        setTimeout(function(){$("#errorForm").slideUp("slow");}, 4500);
     };
     this.buttonHandler = (function () {
         self.render();
@@ -232,7 +252,7 @@ app.AutoCompeletItemView = Backbone.View.extend({
 
 /*AutoCompeletListView - Backbone collection
  - [el] is defined as #searchArea to track if user types something in search input.
- - [keyup] event triggers [auto] function.
+ - [keypress] event triggers [auto] function.
  - [auto] function checks if the value of input is bigger than 0.
  If yes, the collection's query is being defined and [fetch] is being called.
  If no, the [renderError] function is being called.
@@ -244,7 +264,7 @@ app.AutoCompeletItemView = Backbone.View.extend({
 app.AutoCompeletListView = Backbone.View.extend({
     el: $('#searchArea'),
     events: {
-        'keyup': 'auto'
+        'keypress': 'auto'
     },
     initialize: function () {
         this.collection = new app.AutoCompeletCollection();
@@ -268,7 +288,7 @@ app.AutoCompeletListView = Backbone.View.extend({
         this.list.empty();
     },
     auto: function () {
-        var val = $('#food').val().trim();
+        var val = $('#food').val();
         if (val.length > 0) {
             this.collection.query = val;
             this.collection.fetch();
@@ -362,11 +382,12 @@ app.SearchViewItem = Backbone.View.extend({
         this.$el.html(this.template(foodItem));
         return this;
     },
-    addItem: function (event) {
-        event.preventDefault();
+    addItem: function () {
+        var checkAuth = app.firebase.getAuth();
+        if(checkAuth){
         var newModel = this.model.clone();
         app.currentFood.collection.add(newModel);
-        app.currentSearch.cleanupAdd();
+        app.currentSearch.cleanupAdd();}
     }
 });
 
@@ -544,24 +565,32 @@ app.FoodListView = Backbone.View.extend({
     el: $('#foodArea'),
     initialize: function () {
         this.collection = new app.FoodCollection();
+        this.table =  $('#food_list');
+        this.message = $('#messageLogin');
         this.results = $('tbody', '#food_list');
+        this.render();
         this.listenTo(this.collection, 'add', this.render);
         this.listenTo(this.collection, 'remove', this.render);
         this.listenTo(this.collection, 'sync', this.render);
-        this.render();
     },
     render: function () {
         var self = this;
-
-        this.cleanup();
-        this.calculateKcal();
+        var checkAuth = app.firebase.getAuth();
+        if(checkAuth){
+        self.message.slideUp();    
+        self.table.fadeIn();
+        self.cleanup();
+        self.calculateKcal();
         self.collection.each(function (foodItem) {
             var item = new app.FoodItemView({
                 model: foodItem
             });
             self.results.append(item.render().el);
         });
-
+    } else {
+        self.table.hide();
+        self.message.fadeIn();
+    }
     },
     cleanup: function () {
         this.results.empty();
