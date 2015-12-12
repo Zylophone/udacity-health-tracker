@@ -48,9 +48,9 @@ APP'S FUNCTIONALITY
     - Once you start typing in input filed autocomplete will be used from Nutritionix API 2.0
       This functionality is not available on Safari, since I am using datalist element currently.
     - After pressing button 'search' or enter key table with products names, weight and calories will be displayed
- - To use food tracking functionality you have to log in: use of the two user credentials mentioned above.
- - Once you log in, and search for certain product, you can press on it. Item will be added to the table food tracked.
- - You can change the date by clicking on of the arrows or pick a date from pop calendar.
+- To use food tracking functionality you have to log in: use of the two user credentials mentioned above.
+- Once you log in, and search for certain product, you can press on it. Item will be added to the table food tracked.
+- You can change the date by clicking on of the arrows or pick a date from pop calendar.
 
      
 
