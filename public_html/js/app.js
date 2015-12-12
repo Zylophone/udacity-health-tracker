@@ -1,15 +1,6 @@
-/* global Backbone, resp, moment, _ */
+/* global Backbone, moment, _,$, Pikaday, Firebase */
 
 'use strict';
-
-
-/* Whole document is divided by sections where models, 
- collections and views are grouped together for easier review of the code.
- I on purpose ignored suggested structure of folders and files for Bacbone app - 
- I find this way easier to manage my code. */
-
-
-
 
 /****************APP OBJECT*********************/
 /*app object will store all the Health Tracker's objects, including Bacbone models, views etc.
@@ -26,6 +17,9 @@
  [#left] & [#right] are the buttons next to date filed, moment js subtracts or adds date. Then new date
  is set [app.picker.setDate()] which also triggers [onSelect] function. [.btn] event is to 
  prevent reloading of the page.
+- [firebaseUrl] variable is being assigned which is used for the user authentatcion and Firebase Backbone Collection
+- [userId] variable assigned once user is logged in. 
+Used for retreving right information from Firebase (data is grouped under userid --> date --> food item)
  */
 
 
@@ -65,9 +59,43 @@ var app = {
     userId: ''
 };
 
+
+/****************Log In OBJECT*********************/
+/*Object for all the log in functions.
+Since there is little DOM manipulation involved I decided to create custom object,
+instead of using Backbone -  this way it was simpler to add slide down log in form,
+errors and Icons.
+
+At first several variables are declared to assign using Jquery DOM elements. Additionally
+[this.logStatus] is being assigned used by [this.render] function.
+Then templates for displaying state of being logged in in the right upper corner
+of the site. 
+- [this.render] base on variable [this.logStatus] is uses the right template to
+display log in status. Since it is not backbone, function is being called manually.
+- [this.buttonHandler] (at the bottom of object) self-invoking function, for handling
+users’ interactions with buttons. The way first two events are assigned allows
+to bond events to buttons even when they are stop being rendered. 
+---First event pulls down login form
+---Second event calls [this.signOut] function
+---Third event calls [this.signIn] by passing user's email value and password, 
+assigns empty log status, calls render so loading icon will be displayed until 
+the response will come. Finally log in form is being hidden. 
+- [this.signIn] uses [authWithPassword] method to log in a user. [app.firebase] 
+is a Firebase (object created below [app.loginForm] when document is ready).
+If response from Firebase was error, function [this.error] is being called 
+with matching error message. Else [this.logStatus] is changed to yes, 
+render function is being called to change "Login" to User icon. 
+Additionally [app.userId] is being assigned and [app.picker.setDate(app.loadDay);] is called.
+which triggers initialization of Firebase collection. 
+ */
+
+
 app.loginForm = function () {
     var self = this;
     this.loginDiv = $('#login');
+    this.email = $('#inputEmail');
+    this.pass = $('#inputPassword');
+    this.logStatus = 'no';
 
     this.templateNot = '<a href="#!" class="btn" id="loginButton"  role="button">' +
             '<p class="head" style="font-size: 1.3em">Login</p></a>';
@@ -75,9 +103,7 @@ app.loginForm = function () {
     this.templateYes = '<i class="fa fa-user-md"></i>' +
             '<a href="#!" class="btn" id="singOut"  role="button"><i class="fa fa-sign-out"></i></a>';
 
-    this.email = $('#inputEmail');
-    this.pass = $('#inputPassword');
-    this.logStatus = 'no';
+
 
     this.render = function () {
         if (self.logStatus === 'yes') {
@@ -252,8 +278,9 @@ app.AutoCompeletItemView = Backbone.View.extend({
 
 /*AutoCompeletListView - Backbone collection
  - [el] is defined as #searchArea to track if user types something in search input.
- - [keypress] event triggers [auto] function.
- - [auto] function checks if the value of input is bigger than 0.
+ - [keyup] event triggers [auto] function.
+ - [auto] function checks if the pressed key is not alt, ctrl, 
+ arrows or enter then checks if value of input is bigger than 0.
  If yes, the collection's query is being defined and [fetch] is being called.
  If no, the [renderError] function is being called.
  - [initialize] creates collection, assign [this.list] to element in the DOM
@@ -264,7 +291,7 @@ app.AutoCompeletItemView = Backbone.View.extend({
 app.AutoCompeletListView = Backbone.View.extend({
     el: $('#searchArea'),
     events: {
-        'keypress': 'auto'
+        'keyup' : 'auto'
     },
     initialize: function () {
         this.collection = new app.AutoCompeletCollection();
@@ -287,14 +314,16 @@ app.AutoCompeletListView = Backbone.View.extend({
     renderError: function () {
         this.list.empty();
     },
-    auto: function () {
+    auto: function (event) {
         var val = $('#food').val();
+        var keyCodes = [17, 18, 37, 38, 39, 40, 13];
+        if(keyCodes.indexOf(event.keyCode)< 0){
         if (val.length > 0) {
             this.collection.query = val;
             this.collection.fetch();
         } else {
             this.renderError();
-        }
+        }}
     }
 });
 
@@ -369,7 +398,7 @@ nf_serving_size_qty,nf_serving_size_unit',
 /* SearchViewItem  - Backbone View
  View used for displaying each table row in the search results, 
  additionally handling the event when user will click on of the rows
- and adds the model to the app.FoodCollection [addItem].*/
+ and adds the model to the app.FoodCollection [addItem] only user is logged in.*/
 
 app.SearchViewItem = Backbone.View.extend({
     tagName: 'tr',
@@ -557,7 +586,9 @@ app.FoodItemView = Backbone.View.extend({
 
 /*FoodListView - Backbone View
  - [el] is defined as #foodArea, where table with tracked information being displayed.
- - [render] appends all the views to [this.result] which is declared in [initialize],
+ - [render] checks if user is logged in, if yes
+ appends all the views to [this.result] which is declared in [initialize],
+if no, it will render message that user have to log in. 
  - [calculateKcal] is being called during [render] to sum up daily calories intake.
  */
 

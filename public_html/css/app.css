@@ -33,7 +33,7 @@ header {
 
 .transform {
     transform: translateZ(0);
-    will-change:transform;
+    will-change: transform;
 }
 
 a,
@@ -101,7 +101,7 @@ tfoot {
 
 @media only screen and (min-width: 1100) {
     .cont {
-        padding-right: 15%
+        padding-right: 15%;
     }
 }
 
@@ -110,7 +110,7 @@ tfoot {
         font-size: 3vw;
     }
     .cont {
-        padding-right: 25%
+        padding-right: 25%;
     }
     .second {
         padding-bottom: 100px;
@@ -122,13 +122,13 @@ tfoot {
         font-size: 3.5vw;
     }
     .cont {
-        padding-right: 30%
+        padding-right: 30%;
     }
 }
 
 @media only screen and (max-width: 760px) {
     .cont {
-        padding-right: 33%
+        padding-right: 33%;
     }
 }
 
