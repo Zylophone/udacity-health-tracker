@@ -21,7 +21,19 @@ gulp.task("concatScripts", function () {
         'js/backbone-min.js',
         'js/firebase.js',
         'js/backbonefire.min.js',
-        'js/app.js'
+        'js/app.js',
+        'js/routers/Router.js',
+        'js/models/AutoCompeletItem.js',
+        'js/collections/AutoCompeletCollection.js',
+        'js/views/AutoCompeletItemView.js',
+        'js/views/AutoCompeletListView.js',
+        'js/models/FoodItem.js',
+        'js/collections/SearchFoodCollection.js',
+        'js/views/SearchViewItem.js',
+        'js/views/SearchViewList.js',
+        'js/collections/FoodCollection.js',
+        'js/views/FoodItemView.js',
+        'js/views/FoodListView.js'
     ])
             .pipe(maps.init())
             .pipe(concat('app.concat.js'))
