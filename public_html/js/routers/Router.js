@@ -2,6 +2,9 @@
 /*Simple router which keep tracks of selected dates.
  Once user go back (or forward) it set date of picker to date from url*/
 
+var app = app || {};
+
+
 app.Router = Backbone.Router.extend({
     'routes': {
         '': 'index',

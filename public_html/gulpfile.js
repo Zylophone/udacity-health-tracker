@@ -13,7 +13,7 @@ var gulp = require('gulp'),
 
 gulp.task("concatScripts", function () {
     return gulp.src([
-        'js/jquery-2.1.4.min.js',
+        'js/jquery-2.2.0.min.js',
         'js/moment.min.js',
         'js/pikaday.js',
         'js/pikaday.jquery.js',
@@ -72,7 +72,7 @@ gulp.task("minifyCSS", ["concatCSS"], function () {
 
 
 gulp.task("build", ['minifyScripts', 'minifyCSS'], function () {
-    return gulp.src(["css/app.min.css", "js/app.min.js", 
+    return gulp.src(["css/app.min.css", "js/app.min.js",
         "img/**", "fonts/**", "favicon.ico"], {base: './'})
             .pipe(gulp.dest('dist'));
 });

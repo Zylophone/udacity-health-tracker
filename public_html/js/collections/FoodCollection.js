@@ -4,6 +4,10 @@
  Collection used to easly sync data with Firebase database.
  */
 
+
+var app = app || {};
+
+
 app.FoodCollection = Backbone.Firebase.Collection.extend({
     model: app.FoodItem,
     url: function () {

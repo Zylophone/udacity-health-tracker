@@ -2,11 +2,11 @@
 /*SearchViewList - Backbone View
  - [el] is defined as #searchArea, where search input is stored and results table.
  - [click #searchBtn] event triggers [search] function.
- - [search] reads the value in the input and assign it to the collection so query can 
- be passed in the server request and calls [.fetch();]. Additionally it calls [cleanup] function 
- - [cleanup] functions empties all the objects in under search area, 
- including possible error message from previous search. Additionally it displays loader.gif, 
- in case the server response will take more time. 
+ - [search] reads the value in the input and assign it to the collection so query can
+ be passed in the server request and calls [.fetch();]. Additionally it calls [cleanup] function
+ - [cleanup] functions empties all the objects in under search area,
+ including possible error message from previous search. Additionally it displays loader.gif,
+ in case the server response will take more time.
  - [click .clear] event is being triggered when user click 'x' button. Then
  function [cleanupAdd], remove results (without adding load gif).
  - [initialize] creates variables for different elements in the DOM,
@@ -15,6 +15,8 @@
  - [render] appends all the views to [tableObject] so jQuery animation can be called when all the views
  being appended. Next it removes the loader.gif and displays the table.
  - [renderError] removes loader.gif and displays the error message instead of table with results.*/
+
+var app = app || {};
 
 app.SearchViewList = Backbone.View.extend({
     el: $('#searchArea'),

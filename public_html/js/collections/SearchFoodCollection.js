@@ -1,14 +1,17 @@
 /*****************SEARCH RESULTS********************/
-/*SearchFoodCollection - Bacbone Collection. 
+/*SearchFoodCollection - Bacbone Collection.
  Default [sync] is overwritten to get information from the server.
  - fields (which limits amount of data we receive form server),
  appID and appKey is stored in object [nutritionix]
  - url is returned in function together with user's query
  [parse] function will process the response.
  - if return is empty it will trigger error, which will be handled in app.AutoCompeletListView.
- It passes the text which will be displayed under input filed. 
+ It passes the text which will be displayed under input filed.
  - else it will reset collection to create list of models,
  with all the information displayed in the app.*/
+
+var app = app || {};
+
 
 app.SearchFoodCollection = Backbone.Collection.extend({
     model: app.FoodItem,

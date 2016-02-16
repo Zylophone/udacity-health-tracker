@@ -1,19 +1,22 @@
 /*****************TRACKED FOOD ITEMS********************/
 /*FoodItemView - Backbone View
  View for each table row displayed for 'added' food items.
- View uses two templates, one for standard display and one for editing 
- qty of tracked food items. 
- - [click .remove] is triggered when user presses 'x' button, 
+ View uses two templates, one for standard display and one for editing
+ qty of tracked food items.
+ - [click .remove] is triggered when user presses 'x' button,
  calls function [remove] which destroys the model.
  - [click .edit] is triggered when user press 'pencil' button,
- calls [edit] function which sets model's value of 'edit' to 'yes'. 
+ calls [edit] function which sets model's value of 'edit' to 'yes'.
  This will trigger model change and assign different template during rendering.
- - [click .update] is triggered when user is done with editing qty, 
+ - [click .update] is triggered when user is done with editing qty,
  calls [update] function, which reads input with qty, gets model's weight and calories,
  multiply them by input qty and sets new values for all three. And changes 'edit' value to 'no'.
  - [keyup .inputqty] checks if user wanted to confirm change with enter key instead on screen button.
  Then calls [update] function.
  - [render] checks if 'edit' value is 'yes' and then uses the matching template.*/
+
+
+var app = app || {};
 
 app.FoodItemView = Backbone.View.extend({
     tagName: 'tr',
