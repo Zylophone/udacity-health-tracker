@@ -1,62 +1,58 @@
-#frontend-nanodegree-Health_Tracker
+###Udacity Front-End Web Developer Nanodegree – Project 06
 
-backbone.js project to build interactive calorie counter.
 
-API used for the project:
-    - Nutritionix API - Home
-    - Firebase
+#Health Tracker
 
-===============================
 
-LIVE VERSION of the project: http://www.thefullresolution.com/health_tracker/index.html
 
-===============================
-LOG IN 
+###Project Requirements:
 
-There is no user sing up available.
+<br>
+Using Backbone, you will develop a single page app that tracks the user's calorie intake, and optionally, other health-related metrics. Typing food names into the search field will display a list of matching foods as provided by the health API. Users will be able to select an item from the list, and the item will be added to the list of foods the user is tracking. The total calorie count will also update to reflect the new daily total.
+<br><br>
 
-You can use following log in data for testing app:
+-------
 
-1)
-email:  health@tracker.com
-password: test
+ONLINE  VERSION of the project: [http://www.thefullresolution.com/health_tracker/index.html](http://www.thefullresolution.com/health_tracker/index.html)
 
-2)
-email: calories@health.com
-password: test
+-------
 
-===============================
+###General Usage Notes
 
-GENERAL USAGE NOTES
+- If you want to test the project locally, you have to use a localhost to display a website. The site uses Backbonone routers and it won't work properly if you just open index.html
+- Page uses external APIs, you need an active internet connection to test the project.
 
-- If you want to test website on your locally, you have to use localhost to display website.
-Since the site uses Backbonone routers, page won't work properly if you just open index.html
-- Page uses external APIs, you need active internet connection to test the project.
 
-===============================
 
-REVIEWING THE CODE
+###Reviewing The Code
 
-Files are in folder 'public_html'. 
-Inside folder 'dist' you will find minified and concatenated files.
+Files are in the folder public_html. Inside the folder 'dist' you will find minified and concatenated files.
 
-===============================
 
-APP'S FUNCTIONALITY
 
-- You can use search functionality without logging in. 
-    - Once you start typing in input filed autocomplete will be used from Nutritionix API 2.0
-      This functionality is not available on Safari, since I am using datalist element currently.
-    - After pressing button 'search' or enter key table with products names, weight and calories will be displayed
-- To use food tracking functionality you have to log in: use of the two user credentials mentioned above.
-- Once you log in, and search for certain product, you can press on it. Item will be added to the table food tracked.
+###App's Functionality
+
+
+- You can use search functionality without logging in.
+	- Once you start typing in the input filed, autocomplete will be used from Nutritionix API 2.0.
+		*This functionality is not available on Safari, since I am using a datalist element currently.*
+
+	- After pressing the button 'search' or the 'enter' key, a table with products names, weight and calories will be displayed.
+
+- To use a food tracking functionality you have to log in: use one of the two user credentials mentioned above.
+
+- Once you are logged in, and you searched for certain product, you can press on one of the results. Item will be added to the table food tracked.  
+
 - You can change the date by clicking on of the arrows or pick a date from pop calendar.
 
-     
 
-===============================
 
-Sources used in the project:
-- https://www.firebase.com/
-- https://developer.nutritionix.com/docs/v1_1
-- https://developer.nutritionix.com/docs/v2/autocomplete
+
+
+
+####Sources used in the project:
+
+
+- [https://www.firebase.com/](https://www.firebase.com/)
+- [https://developer.nutritionix.com/docs/v1_1](https://developer.nutritionix.com/docs/v1_1) 
+- [https://developer.nutritionix.com/docs/v2/autocomplete](https://developer.nutritionix.com/docs/v2/autocomplete)
