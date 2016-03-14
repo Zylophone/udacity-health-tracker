@@ -13,13 +13,13 @@ Using Backbone, you will develop a single page app that tracks the user's calori
 
 -------
 
-ONLINE  VERSION of the project: [http://www.thefullresolution.com/health_tracker/index.html](http://www.thefullresolution.com/health_tracker/index.html)
+ONLINE  VERSION of the project: [http://www.thefullresolution.com/health_tracker/](http://www.thefullresolution.com/health_tracker/)
 
 -------
 
 ###General Usage Notes
 
-- If you want to test the project locally, you have to use a localhost to display a website. The site uses Backbonone routers and it won't work properly if you just open index.html
+- If you want to test the project locally, you have to use a local-host to display a website. The site uses Backbone routers and it won't work properly if you just open index.html
 - Page uses external APIs, you need an active internet connection to test the project.
 
 
@@ -34,7 +34,7 @@ Files are in the folder public_html. Inside the folder 'dist' you will find mini
 
 
 - You can use search functionality without logging in.
-	- Once you start typing in the input filed, autocomplete will be used from Nutritionix API 2.0.
+	- Once you start typing in the input filed, auto-complete will be used from Nutritionix API 2.0.
 		*This functionality is not available on Safari, since I am using a datalist element currently.*
 
 	- After pressing the button 'search' or the 'enter' key, a table with products names, weight and calories will be displayed.
