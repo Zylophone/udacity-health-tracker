@@ -27,6 +27,8 @@ ONLINE  VERSION of the project: [http://www.thefullresolution.com/health_tracker
 ###Reviewing The Code
 
 Files are in the folder public_html. Inside the folder 'dist' you will find minified and concatenated files.
+
+
 LOGIN and PASSWORD: health@tracker.com / test
 
 
