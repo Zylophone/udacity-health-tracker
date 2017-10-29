@@ -17,14 +17,14 @@ ONLINE  VERSION of the project: [http://www.thefullresolution.com/health_tracker
 
 -------
 
-###General Usage Notes
+### General Usage Notes
 
 - If you want to test the project locally, you have to use a local-host to display a website. The site uses Backbone routers and it won't work properly if you just open index.html
 - Page uses external APIs, you need an active internet connection to test the project.
 
 
 
-###Reviewing The Code
+### Reviewing The Code
 
 Files are in the folder public_html. Inside the folder 'dist' you will find minified and concatenated files.
 
@@ -33,7 +33,7 @@ LOGIN and PASSWORD: health@tracker.com / test
 
 
 
-###App's Functionality
+### App's Functionality
 
 
 - You can use search functionality without logging in.
@@ -53,7 +53,7 @@ LOGIN and PASSWORD: health@tracker.com / test
 
 
 
-####Sources used in the project:
+#### Sources used in the project:
 
 
 - [https://www.firebase.com/](https://www.firebase.com/)
